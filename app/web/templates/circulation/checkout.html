@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Circulation - AISYS LMS{% endblock %}
+
+{% block content %}
+<div class="circulation">
+    <h2>Circulation</h2>
+
+    <div class="circulation-actions glass-card">
+        <h3>Check Out Item</h3>
+        <div class="glass-form">
+            <div class="form-group">
+                <label>Member ID / Barcode</label>
+                <input type="text" placeholder="Enter member barcode">
+            </div>
+            <div class="form-group">
+                <label>Item Barcode</label>
+                <input type="text" placeholder="Scan or enter item barcode">
+            </div>
+            <button class="glass-button">Check Out</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

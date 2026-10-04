@@ -1,0 +1,42 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aisys_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aisys
+      POSTGRES_PASSWORD: aisys          # synthetic dev password — NOT for production
+      POSTGRES_DB: aisys_lms
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aisys -d aisys_lms"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: aisys_app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: "postgresql+asyncpg://aisys:aisys@db:5432/aisys_lms"
+      DATABASE_URL_SYNC: "postgresql+psycopg2://aisys:aisys@db:5432/aisys_lms"
+      ENVIRONMENT: development
+      SECRET_KEY: "dev-synthetic-secret-change-me"
+      LOG_FORMAT: console
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+volumes:
+  pgdata:

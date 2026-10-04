@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Reports - AISYS LMS{% endblock %}
+
+{% block content %}
+<div class="reports">
+    <h2>Reports</h2>
+
+    <div class="report-options glass-card">
+        <h3>Generate Reports</h3>
+        <div class="glass-form">
+            <div class="form-group">
+                <label>Report Type</label>
+                <select>
+                    <option>Circulation Report</option>
+                    <option>Member Activity</option>
+                    <option>Inventory Report</option>
+                    <option>Fine Report</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date Range</label>
+                <input type="date">
+                <input type="date">
+            </div>
+            <button class="glass-button">Generate Report</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

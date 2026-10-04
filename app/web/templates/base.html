@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AISYS Library Management System{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="glass-container">
+        <header class="glass-header">
+            <div class="logo">
+                <h1>AISYS LMS</h1>
+                <p>RFID-Enabled Library Management</p>
+            </div>
+            <nav class="glass-nav">
+                <a href="/">Dashboard</a>
+                <a href="/catalogue">Catalogue</a>
+                <a href="/circulation">Circulation</a>
+                <a href="/members">Members</a>
+                <a href="/rfid">RFID</a>
+                <a href="/reports">Reports</a>
+            </nav>
+        </header>
+
+        <main class="glass-main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="glass-footer">
+            <p>&copy; 2024 AISYS Library Management System. All data is synthetic.</p>
+        </footer>
+    </div>
+
+    <script src="/static/js/main.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

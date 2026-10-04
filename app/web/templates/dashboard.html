@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - AISYS LMS{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h2>Dashboard</h2>
+
+    <div class="stats-grid">
+        <div class="stat-card glass-card">
+            <h3>Total Records</h3>
+            <p class="stat-value">{{ stats.total_records }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Total Items</h3>
+            <p class="stat-value">{{ stats.total_items }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Available Items</h3>
+            <p class="stat-value">{{ stats.available_items }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Active Members</h3>
+            <p class="stat-value">{{ stats.active_members }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Active Loans</h3>
+            <p class="stat-value">{{ stats.active_loans }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Overdue Loans</h3>
+            <p class="stat-value overdue">{{ stats.overdue_loans }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Outstanding Fines</h3>
+            <p class="stat-value">${{ stats.outstanding_fines|round(2) }}</p>
+        </div>
+        <div class="stat-card glass-card">
+            <h3>Recent Alerts</h3>
+            <p class="stat-value alert">{{ stats.recent_alerts }}</p>
+        </div>
+    </div>
+
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="/catalogue" class="glass-button">Browse Catalogue</a>
+            <a href="/circulation" class="glass-button">Check Out Item</a>
+            <a href="/members" class="glass-button">Manage Members</a>
+            <a href="/rfid" class="glass-button">RFID Operations</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
