@@ -9,13 +9,13 @@
 | **FR03** | RFID interoperability & middleware boundaries | `app.rfid.adapters.*`, `app.rfid.ncip` | Verified via AC02, AC03, AC05, AC06, AC07 mock integrations | Done |
 | **FR04** | Circulation rules, renewals, member blocking | `app.api.v1.circulation`, `app.models.member` | Verified via AC03 (check-out/in) and AC04 (circulation blocking) | Done |
 | **FR05** | RFID tag validation and item association | `app.api.v1.rfid`, `app.models.rfid` | Verified via AC02 (associating tag to bibliographic item) | Done |
-| **FR06** | Inventory/shelf management operations | `app.api.v1.rfid` (planned inventory endpoints) | Verified via AC05 (handheld inventory mock scenario) | Pending |
+| **FR06** | Inventory/shelf management operations | `app.api.v1.inventory`, `app.services.inventory` | Verified via AC05 (handheld inventory mock scenario) | Done |
 | **FR07** | Security gate events and notifications | `app.api.v1.rfid`, `app.rfid.adapters.mock_gate` | Verified via AC06 (unauthorised removal from gate) | Done |
 | **FR08** | Dashboards and reporting | `app.api.v1.reports`, `app.web.templates.dashboard.html` | Verified via AC08 (dashboard generation & filterable statistics) | Done |
 | **FR09** | Notifications (email, SMS, print) | `app.core.config`, external mock adapters | Verified via AC06 (notification queued flag) | Done |
-| **FR10** | Data migration from spreadsheet files | `cli.migrate` (to be implemented) | Verified via AC01 (import process, duplicate handling, reconciliation) | Pending |
+| **FR10** | Data migration from spreadsheet files | `cli.migrate`, `app.services.spreadsheet_import` | Verified via AC01 (import process, duplicate handling, reconciliation) | Done |
 | **FR11** | Administration, auth, health check | `app.api.v1.auth`, `app.api.v1.health`, `app.models.user` | Verified via AC07 (staff smart-card login & RBAC enforcement) | Done |
-| **FR12** | Offline lifecycle, upgrade and patch support | Deployment scripts, `docker-compose.yml` | Verified via AC09 (offline installation and update simulation) | Pending |
+| **FR12** | Offline lifecycle, upgrade and patch support | `install.bat`, `docker-compose.yml` | Verified via AC09 (offline installation and update simulation) | Done |
 
 ## Non-Functional Requirements (NFR)
 
