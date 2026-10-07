@@ -38,7 +38,10 @@ class RfidTagResponse(RfidTagBase):
 
     id: uuid.UUID
     item_id: Optional[uuid.UUID] = None
-    encoded_at: Optional[datetime] = None
+    member_id: Optional[uuid.UUID] = None
+    security_bit: bool = True
+    last_seen_reader: Optional[str] = None
+    last_seen_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -57,10 +60,10 @@ class RfidTagAssociateRequest(BaseModel):
 class GateEventBase(BaseModel):
     """Base gate event fields."""
 
-    gate_id: str = Field(..., min_length=1, max_length=64)
     event_type: str = Field(..., max_length=50)  # entry, exit, alert
-    tag_uids: list[str] = Field(default_factory=list)
-    member_id: Optional[uuid.UUID] = None
+    gate_id: str = Field(..., min_length=1, max_length=64)
+    tag_uid: Optional[str] = None
+    accession_number: Optional[str] = None
 
 
 class GateEventCreate(GateEventBase):
@@ -73,12 +76,13 @@ class GateEventResponse(GateEventBase):
     """Gate event response (read-only)."""
 
     id: uuid.UUID
-    timestamp: datetime
-    cctv_image_url: Optional[str] = None
-    is_alert: bool = False
-    alert_reason: Optional[str] = None
+    accession_number: Optional[str] = None
+    cctv_image_path: Optional[str] = None
     notification_queued: bool = False
+    notification_sent_at: Optional[datetime] = None
+    raw_payload: Optional[str] = None
     created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

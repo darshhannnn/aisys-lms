@@ -60,9 +60,8 @@ class TaggingService:
         if not item:
             raise ValueError("Item not found")
 
-        # Update item with RFID tag reference
-        item.rfid_tag_id = tag.id
-        item.encoded_at = datetime.utcnow()
+        # Update item with RFID tag reference (set rfid_tag via relationship)
+        item.rfid_tag = tag
         self.session.add(item)
         await self.session.flush()
         await self.session.refresh(item)
@@ -81,7 +80,7 @@ class TaggingService:
         if tag.item_id:
             item = await self.item_repo.get(tag.item_id)
             if item:
-                item.rfid_tag_id = None
+                item.rfid_tag = None
                 self.session.add(item)
 
         from app.schemas.rfid import RfidTagUpdate

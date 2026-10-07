@@ -121,6 +121,7 @@ class Item(Base):
     accession_number: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)
     barcode: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True, index=True)
     spine_label: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    location: Mapped[str | None] = mapped_column(String(128), nullable=True)  # Physical shelf location
 
     status: Mapped[ItemStatus] = mapped_column(
         Enum(ItemStatus, name="item_status"), nullable=False, default=ItemStatus.AVAILABLE

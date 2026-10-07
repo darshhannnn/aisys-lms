@@ -103,10 +103,13 @@ class ItemRepository(BaseRepository[Item, ItemCreate, ItemUpdate]):
         skip: int = 0,
         limit: int = 100,
     ) -> Sequence[Item]:
-        """Get items by location."""
+        """Get items by shelf location."""
+        # Join with bibliographic record to get shelf_location
+        from sqlalchemy import and_
         result = await self.session.execute(
             select(Item)
-            .where(Item.location == location)
+            .join(BibliographicRecord, Item.bibliographic_record_id == BibliographicRecord.id)
+            .where(BibliographicRecord.shelf_location == location)
             .offset(skip)
             .limit(limit)
         )
@@ -128,4 +131,8 @@ class ItemRepository(BaseRepository[Item, ItemCreate, ItemUpdate]):
 
     async def get_by_rfid_tag_id(self, rfid_tag_id: uuid.UUID) -> Optional[Item]:
         """Get item by RFID tag ID."""
-        return await self.get_by_field("rfid_tag_id", rfid_tag_id)
+        from app.models.rfid import RfidTag
+        result = await self.session.execute(
+            select(Item).where(Item.id == RfidTag.item_id).where(RfidTag.id == rfid_tag_id)
+        )
+        return result.scalar_one_or_none()

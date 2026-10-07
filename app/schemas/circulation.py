@@ -29,7 +29,7 @@ class LoanCreate(LoanBase):
 class LoanUpdate(BaseModel):
     """Loan update request."""
 
-    return_date: Optional[date] = None
+    returned_at: Optional[datetime] = None
     status: Optional[str] = Field(None, max_length=50)
 
 
@@ -37,10 +37,10 @@ class LoanResponse(LoanBase):
     """Loan response (read-only)."""
 
     id: uuid.UUID
-    checkout_date: date
-    return_date: Optional[date] = None
+    issued_at: datetime
+    returned_at: Optional[datetime] = None
     status: str
-    renewal_count: int = 0
+    renewals_count: int = 0
     created_at: datetime
     updated_at: datetime
 

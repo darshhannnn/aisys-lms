@@ -29,7 +29,7 @@ class LoanRepository(BaseRepository[Loan, LoanCreate, LoanUpdate]):
         result = await self.session.execute(
             select(Loan)
             .where(Loan.member_id == member_id)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
             .offset(skip)
             .limit(limit)
         )
@@ -40,7 +40,7 @@ class LoanRepository(BaseRepository[Loan, LoanCreate, LoanUpdate]):
         result = await self.session.execute(
             select(Loan)
             .where(Loan.item_id == item_id)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         return result.scalar_one_or_none()
 
@@ -54,7 +54,7 @@ class LoanRepository(BaseRepository[Loan, LoanCreate, LoanUpdate]):
         result = await self.session.execute(
             select(Loan)
             .where(Loan.due_date < as_of_date)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
             .offset(skip)
             .limit(limit)
         )
@@ -68,7 +68,7 @@ class LoanRepository(BaseRepository[Loan, LoanCreate, LoanUpdate]):
             select(func.count())
             .select_from(Loan)
             .where(Loan.member_id == member_id)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         return result.scalar()
 
@@ -84,7 +84,7 @@ class LoanRepository(BaseRepository[Loan, LoanCreate, LoanUpdate]):
             select(Loan)
             .where(Loan.due_date >= start_date)
             .where(Loan.due_date <= end_date)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
             .offset(skip)
             .limit(limit)
         )
@@ -102,7 +102,7 @@ class RenewalRepository:
         result = await self.session.execute(
             select(Renewal)
             .where(Renewal.loan_id == loan_id)
-            .order_by(Renewal.created_at)
+            .order_by(Renewal.renewed_at)
         )
         return result.scalars().all()
 

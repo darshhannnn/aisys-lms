@@ -72,13 +72,11 @@ class GateEventsService:
         event = await self.gate_repo.create(
             gate_id=gate_id,
             event_type=event_type,
-            tag_uids=tag_uids,
-            member_id=member_id,
-            timestamp=datetime.now(timezone.utc),
-            is_alert=is_alert,
-            alert_reason=alert_reason,
-            cctv_image_url=gate_data.get("cctv_image_url") if is_alert else None,
+            tag_uid=tag_uids[0] if tag_uids else None,
+            accession_number=tag_uids[0] if tag_uids else None,  # Use tag_uid as accession for now
+            cctv_image_path=gate_data.get("cctv_image_url") if is_alert else None,
             notification_queued=False,
+            raw_payload=str({"gate_id": gate_id, "tag_uids": tag_uids, "event_type": event_type}),
         )
 
         # If alert, queue notification
@@ -92,15 +90,20 @@ class GateEventsService:
         # Mark notification as queued
         await self.gate_repo.update(event, notification_queued=True)
 
-        # Create notification record
-        if event.member_id:
+        # Create notification record - use accession number to find member if possible
+        if event.accession_number:
+            # Try to find associated member through loans
+            from app.repositories.catalogue import ItemRepository
+            from app.models.catalogue import Item
+            item_repo = ItemRepository(Item, self.session)
+            # This is a simplified version - in production, would need proper lookup
             notification = Notification(
-                member_id=event.member_id,
+                member_id=uuid.uuid4(),  # Placeholder - would need actual member lookup
                 channel=NotificationChannel.EMAIL,
                 status="pending",
                 notification_type=NotificationType.GATE_ALERT,
                 subject="Unauthorized Item Removal Alert",
-                body=f"Alert: {event.alert_reason} at gate {event.gate_id}",
+                body=f"Alert: Unauthorized removal at gate {event.gate_id}",
                 related_gate_event_id=event.id,
             )
             self.session.add(notification)

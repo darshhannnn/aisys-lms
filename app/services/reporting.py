@@ -85,8 +85,8 @@ class ReportingService:
         result = await self.session.execute(
             select(func.count())
             .select_from(GateEvent)
-            .where(GateEvent.timestamp >= yesterday)
-            .where(GateEvent.is_alert == True)
+            .where(GateEvent.created_at >= yesterday)
+            .where(GateEvent.event_type == "unauthorised_exit")
         )
         recent_alerts = result.scalar() or 0
 
@@ -117,8 +117,8 @@ class ReportingService:
         result = await self.session.execute(
             select(func.count())
             .select_from(Loan)
-            .where(Loan.checkout_date >= start_date)
-            .where(Loan.checkout_date <= end_date)
+            .where(Loan.issued_at >= start_datetime)
+            .where(Loan.issued_at <= end_datetime)
         )
         new_checkouts = result.scalar() or 0
 
@@ -126,8 +126,8 @@ class ReportingService:
         result = await self.session.execute(
             select(func.count())
             .select_from(Loan)
-            .where(Loan.return_date >= start_date)
-            .where(Loan.return_date <= end_date)
+            .where(Loan.returned_at >= start_datetime)
+            .where(Loan.returned_at <= end_datetime)
         )
         returns = result.scalar() or 0
 
@@ -163,12 +163,15 @@ class ReportingService:
         member_id: str,
     ) -> dict[str, Any]:
         """Get activity report for a specific member."""
+        import uuid
+        member_uuid = uuid.UUID(member_id) if isinstance(member_id, str) else member_id
+        
         # Active loans
         result = await self.session.execute(
             select(func.count())
             .select_from(Loan)
-            .where(Loan.member_id == member_id)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.member_id == member_uuid)
+            .where(Loan.returned_at.is_(None))
         )
         active_loans = result.scalar() or 0
 
@@ -176,7 +179,7 @@ class ReportingService:
         result = await self.session.execute(
             select(func.sum(Fine.amount))
             .select_from(Fine)
-            .where(Fine.member_id == member_id)
+            .where(Fine.member_id == member_uuid)
         )
         total_fines = result.scalar() or 0.0
 
@@ -184,7 +187,7 @@ class ReportingService:
         result = await self.session.execute(
             select(func.sum(Fine.paid_amount))
             .select_from(Fine)
-            .where(Fine.member_id == member_id)
+            .where(Fine.member_id == member_uuid)
         )
         paid_fines = result.scalar() or 0.0
 

@@ -9,12 +9,14 @@ from datetime import date, datetime, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.circulation import Loan, Fine
 from app.models.member import Member, MemberStatus
 from app.models.catalogue import Item
 from app.repositories.circulation import LoanRepository, RenewalRepository, FineRepository
 from app.repositories.member import MemberRepository
 from app.repositories.catalogue import ItemRepository
+from datetime import datetime
 
 
 class CirculationService:
@@ -48,7 +50,7 @@ class CirculationService:
             return False, f"Member status is {member.status.value}"
 
         # Check fine limit
-        if member.outstanding_fine > 50.0:  # Configurable limit
+        if member.outstanding_fine > settings.max_fine_before_block:
             return False, f"Outstanding fine exceeds limit: ${member.outstanding_fine:.2f}"
 
         # Check loan limit
@@ -114,7 +116,7 @@ class CirculationService:
         # Check for overdue and create fine if needed
         if return_date > loan.due_date:
             days_overdue = (return_date - loan.due_date).days
-            fine_amount = days_overdue * 0.50  # $0.50 per day
+            fine_amount = days_overdue * settings.fine_per_day
             await self.create_fine(
                 member_id=loan.member_id,
                 loan_id=loan.id,
@@ -126,9 +128,10 @@ class CirculationService:
         # Update loan
         from app.schemas.circulation import LoanUpdate
 
+        return_datetime = datetime.combine(return_date, datetime.min.time())
         updated_loan = await self.loan_repo.update(
             loan,
-            LoanUpdate(return_date=return_date, status="returned"),
+            LoanUpdate(returned_at=return_datetime, status="returned"),
         )
 
         # Update item status
@@ -153,7 +156,7 @@ class CirculationService:
 
         # Check renewal limit
         renewal_count = await self.renewal_repo.count_by_loan_id(loan_id)
-        if renewal_count >= 3:  # Configurable
+        if renewal_count >= settings.max_renewals:
             raise ValueError("Maximum renewal limit reached")
 
         # Create renewal record

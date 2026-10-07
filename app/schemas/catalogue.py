@@ -21,12 +21,12 @@ class BibliographicRecordBase(BaseModel):
     issn: Optional[str] = Field(None, max_length=20)
     publisher: Optional[str] = Field(None, max_length=255)
     publication_year: Optional[int] = Field(None, ge=1000, le=2100)
-    edition: Optional[str] = Field(None, max_length=100)
-    language: Optional[str] = Field(None, max_length=10)
+    edition: Optional[str] = Field(None, max_length=64)
+    language: Optional[str] = Field(default="en", max_length=8)
     subject: Optional[str] = Field(None, max_length=255)
-    abstract: Optional[str] = None
-    call_number: Optional[str] = Field(None, max_length=100)
-    material_type: str = Field(default="book", max_length=50)
+    description: Optional[str] = None
+    dewey_class: Optional[str] = Field(None, max_length=64)
+    lcc_class: Optional[str] = Field(None, max_length=64)
 
 
 class BibliographicRecordCreate(BibliographicRecordBase):
@@ -44,12 +44,12 @@ class BibliographicRecordUpdate(BaseModel):
     issn: Optional[str] = Field(None, max_length=20)
     publisher: Optional[str] = Field(None, max_length=255)
     publication_year: Optional[int] = Field(None, ge=1000, le=2100)
-    edition: Optional[str] = Field(None, max_length=100)
-    language: Optional[str] = Field(None, max_length=10)
+    edition: Optional[str] = Field(None, max_length=64)
+    language: Optional[str] = Field(None, max_length=8)
     subject: Optional[str] = Field(None, max_length=255)
-    abstract: Optional[str] = None
-    call_number: Optional[str] = Field(None, max_length=100)
-    material_type: Optional[str] = Field(None, max_length=50)
+    description: Optional[str] = None
+    dewey_class: Optional[str] = Field(None, max_length=64)
+    lcc_class: Optional[str] = Field(None, max_length=64)
 
 
 class BibliographicRecordResponse(BibliographicRecordBase):
@@ -76,12 +76,14 @@ class BibliographicRecordSearch(BaseModel):
 class ItemBase(BaseModel):
     """Base item fields."""
 
-    barcode: str = Field(..., min_length=1, max_length=64)
-    call_number: Optional[str] = Field(None, max_length=100)
-    location: str = Field(default="stacks", max_length=100)
+    accession_number: str = Field(..., min_length=1, max_length=64)
+    barcode: Optional[str] = Field(None, max_length=64)
+    spine_label: Optional[str] = Field(None, max_length=64)
     status: str = Field(default="available", max_length=50)
-    item_type: str = Field(default="circulating", max_length=50)
-    condition: str = Field(default="good", max_length=50)
+    is_reference: bool = False
+    price: Optional[float] = Field(None, ge=0)
+    currency: str = Field(default="INR", max_length=3)
+    vendor: Optional[str] = Field(None, max_length=255)
 
 
 class ItemCreate(ItemBase):
@@ -93,11 +95,13 @@ class ItemCreate(ItemBase):
 class ItemUpdate(BaseModel):
     """Item update request."""
 
-    call_number: Optional[str] = Field(None, max_length=100)
-    location: Optional[str] = Field(None, max_length=100)
+    barcode: Optional[str] = Field(None, max_length=64)
+    spine_label: Optional[str] = Field(None, max_length=64)
     status: Optional[str] = Field(None, max_length=50)
-    item_type: Optional[str] = Field(None, max_length=50)
-    condition: Optional[str] = Field(None, max_length=50)
+    is_reference: Optional[bool] = None
+    price: Optional[float] = Field(None, ge=0)
+    currency: Optional[str] = Field(None, max_length=3)
+    vendor: Optional[str] = Field(None, max_length=255)
 
 
 class ItemResponse(ItemBase):
@@ -105,7 +109,6 @@ class ItemResponse(ItemBase):
 
     id: uuid.UUID
     bibliographic_record_id: uuid.UUID
-    rfid_tag_id: Optional[uuid.UUID] = None
     created_at: datetime
     updated_at: datetime
 
