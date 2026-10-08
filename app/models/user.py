@@ -60,7 +60,14 @@ class User(Base):
     )
 
     # Relationships
-    audit_logs: Mapped[list[AuditLog]] = relationship("AuditLog", back_populates="actor", lazy="select")
+    audit_logs: Mapped[list[AuditLog]] = relationship(
+        "AuditLog",
+        foreign_keys="AuditLog.actor_id",
+        primaryjoin="AuditLog.actor_id == User.id",
+        back_populates="actor",
+        lazy="select",
+        viewonly=True,  # audit entries are immutable and never updated via this side
+    )
 
     def __repr__(self) -> str:
         return f"<User {self.username!r} role={self.role.value}>"

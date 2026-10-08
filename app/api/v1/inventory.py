@@ -23,7 +23,7 @@ router = APIRouter()
 async def scan_inventory(
     request: InventoryScanRequest,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_circulation_staff)],
+    current_user: Annotated[object, require_circulation_staff],
 ) -> dict:
     """Perform an inventory scan at a location using handheld RFID reader (FR06, AC05)."""
     service = InventoryService(db)
@@ -48,7 +48,7 @@ async def scan_inventory(
 async def get_inventory_report(
     scan_id: str,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_circulation_staff)],
+    current_user: Annotated[object, require_circulation_staff],
 ) -> dict:
     """Get detailed inventory report for a specific scan."""
     from uuid import UUID

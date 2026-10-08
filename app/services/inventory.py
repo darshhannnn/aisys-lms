@@ -53,10 +53,9 @@ class InventoryService:
         expected_items = await self.item_repo.get_by_location(location)
         expected_tag_uids = []
         for item in expected_items:
-            if item.rfid_tag_id:
-                tag = await self.tag_repo.get(item.rfid_tag_id)
-                if tag:
-                    expected_tag_uids.append(tag.tag_uid)
+            tag = await self.tag_repo.get_by_item_id(item.id)
+            if tag:
+                expected_tag_uids.append(tag.tag_uid)
 
         # Find discrepancies
         discrepancies = []

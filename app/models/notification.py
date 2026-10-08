@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -55,9 +55,9 @@ class Notification(Base):
 
     __tablename__ = "notifications"
 
-    # Recipient
-    member_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("members.id", ondelete="CASCADE"), nullable=False, index=True
+    # Recipient (nullable — gate alerts notify staff, not a specific member)
+    member_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("members.id", ondelete="CASCADE"), nullable=True, index=True
     )
     recipient_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     recipient_phone: Mapped[str | None] = mapped_column(String(32), nullable=True)
@@ -91,7 +91,7 @@ class Notification(Base):
 
     # Metadata
     is_system_generated: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-    metadata: Mapped[dict | None] = mapped_column(nullable=True)  # JSON column
+    notification_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
     # Relationships
     member: Mapped["Member"] = relationship("Member", back_populates="notifications")

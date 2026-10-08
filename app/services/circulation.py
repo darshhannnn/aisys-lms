@@ -12,11 +12,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.models.circulation import Loan, Fine
 from app.models.member import Member, MemberStatus
-from app.models.catalogue import Item
+from app.models.catalogue import Item, ItemStatus
 from app.repositories.circulation import LoanRepository, RenewalRepository, FineRepository
 from app.repositories.member import MemberRepository
 from app.repositories.catalogue import ItemRepository
-from datetime import datetime
 
 
 class CirculationService:
@@ -79,6 +78,8 @@ class CirculationService:
             raise ValueError("Item not found")
         if item.status != "available":
             raise ValueError(f"Item is not available (status: {item.status})")
+        if item.is_reference:
+            raise ValueError("Reference items cannot be checked out")
 
         # Check if item already has active loan
         active_loan = await self.loan_repo.get_active_loans_by_item(item_id)
@@ -96,7 +97,7 @@ class CirculationService:
         loan = await self.loan_repo.create(loan_data)
 
         # Update item status
-        await self.item_repo.update(item, {"status": "checked_out"})
+        await self.item_repo.update(item, {"status": ItemStatus.CHECKED_OUT})
 
         return loan
 
@@ -126,17 +127,18 @@ class CirculationService:
             )
 
         # Update loan
+        from app.models.circulation import LoanStatus
         from app.schemas.circulation import LoanUpdate
 
         return_datetime = datetime.combine(return_date, datetime.min.time())
         updated_loan = await self.loan_repo.update(
             loan,
-            LoanUpdate(returned_at=return_datetime, status="returned"),
+            LoanUpdate(returned_at=return_datetime, status=LoanStatus.RETURNED.value),
         )
 
         # Update item status
         item = await self.item_repo.get(item_id)
-        await self.item_repo.update(item, {"status": "available"})
+        await self.item_repo.update(item, {"status": ItemStatus.AVAILABLE})
 
         return updated_loan
 
@@ -151,7 +153,7 @@ class CirculationService:
         loan = await self.loan_repo.get(loan_id)
         if not loan:
             raise ValueError("Loan not found")
-        if loan.return_date is not None:
+        if loan.returned_at is not None:
             raise ValueError("Cannot renew returned loan")
 
         # Check renewal limit
@@ -257,6 +259,26 @@ class CirculationService:
         member.status = MemberStatus.BLOCKED
         member.block_reason = block_reason
         member.blocked_by_id = blocked_by_id
+        self.session.add(member)
+        await self.session.flush()
+        await self.session.refresh(member)
+
+        return member
+
+    async def unblock_member(
+        self,
+        member_id: uuid.UUID,
+        unblocked_by_id: uuid.UUID | None = None,
+    ) -> Member:
+        """Lift a circulation block (FR04, AC04)."""
+        member = await self.member_repo.get(member_id)
+        if not member:
+            raise ValueError("Member not found")
+
+        member.status = MemberStatus.ACTIVE
+        member.block_reason = None
+        if unblocked_by_id is not None:
+            member.blocked_by_id = unblocked_by_id
         self.session.add(member)
         await self.session.flush()
         await self.session.refresh(member)

@@ -17,7 +17,7 @@ from app.models.notification import NotificationChannel, NotificationStatus, Not
 class NotificationBase(BaseModel):
     """Base notification fields."""
 
-    member_id: uuid.UUID
+    member_id: Optional[uuid.UUID] = None
     channel: NotificationChannel
     notification_type: NotificationType
     subject: str = Field(..., min_length=1, max_length=255)
@@ -33,7 +33,7 @@ class NotificationCreate(NotificationBase):
     related_item_id: Optional[uuid.UUID] = None
     related_gate_event_id: Optional[uuid.UUID] = None
     scheduled_at: Optional[datetime] = None
-    metadata: Optional[dict] = None
+    notification_metadata: Optional[dict] = None
 
 
 class NotificationUpdate(BaseModel):
@@ -59,7 +59,7 @@ class NotificationResponse(NotificationBase):
     delivery_attempts: int = 0
     error_message: Optional[str] = None
     is_system_generated: bool = True
-    metadata: Optional[dict] = None
+    notification_metadata: Optional[dict] = None
     created_at: datetime
     updated_at: datetime
 
@@ -72,7 +72,7 @@ class NotificationTemplateRequest(BaseModel):
     """Request to generate a notification from a template."""
 
     notification_type: NotificationType
-    member_id: uuid.UUID
+    member_id: Optional[uuid.UUID] = None
     context: dict = Field(default_factory=dict)  # Variables for template rendering
 
 

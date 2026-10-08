@@ -45,22 +45,18 @@ class TaggingService:
         item_id: uuid.UUID,
     ) -> tuple[RfidTag, Item]:
         """Associate an RFID tag with an item (FR05, AC02)."""
-        # Get or create tag
-        tag = await self.tag_repo.get_by_tag_uid(tag_uid)
-        if not tag:
-            tag = await self.create_tag(tag_uid, "item", item_id)
-        else:
-            # Update existing tag
-            from app.schemas.rfid import RfidTagUpdate
-
-            tag = await self.tag_repo.update(tag, RfidTagUpdate(item_id=item_id))
-
-        # Get item
         item = await self.item_repo.get(item_id)
         if not item:
             raise ValueError("Item not found")
 
-        # Update item with RFID tag reference (set rfid_tag via relationship)
+        tag = await self.tag_repo.get_by_tag_uid(tag_uid)
+        if not tag:
+            tag = await self.create_tag(tag_uid, "item", item_id)
+        else:
+            from app.schemas.rfid import RfidTagUpdate
+
+            tag = await self.tag_repo.update(tag, RfidTagUpdate(item_id=item_id))
+
         item.rfid_tag = tag
         self.session.add(item)
         await self.session.flush()

@@ -10,6 +10,9 @@ from app.db.session import get_db
 from app.services.reporting import ReportingService
 
 router = APIRouter()
+
+# Alias used by app.main
+web_router = router
 templates = Jinja2Templates(directory="app/web/templates")
 
 

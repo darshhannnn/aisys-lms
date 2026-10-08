@@ -30,6 +30,7 @@ class LoanUpdate(BaseModel):
     """Loan update request."""
 
     returned_at: Optional[datetime] = None
+    due_date: Optional[date] = None
     status: Optional[str] = Field(None, max_length=50)
 
 

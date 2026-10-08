@@ -100,6 +100,13 @@ class GateEvent(Base):
     gate_id: Mapped[str] = mapped_column(String(64), nullable=False)         # physical gate identifier
     tag_uid: Mapped[str | None] = mapped_column(String(128), nullable=True, index=True)
     accession_number: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    member_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("members.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+
+    # Alert state (AC06 — unauthorised removal)
+    is_alert: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
+    alert_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # CCTV photo (AC06) — stored path, not binary (offline storage)
     cctv_image_path: Mapped[str | None] = mapped_column(String(512), nullable=True)

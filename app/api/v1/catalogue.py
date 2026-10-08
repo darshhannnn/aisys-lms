@@ -44,32 +44,34 @@ class BibRecordCreate(BaseModel):
 
 @router.get("/search", summary="Full-text catalogue search (FR02)")
 async def search_catalogue(
-    q: Annotated[str, Query(min_length=1)],
+    query: Annotated[str | None, Query(alias="query")] = None,
+    q: Annotated[str | None, Query()] = None,
     limit: int = 20,
     offset: int = 0,
     db: AsyncSession = Depends(get_db),
-) -> dict:
+) -> list:
     """Full-text search across title, author, ISBN, subject.
 
-    Uses PostgreSQL tsvector for fast full-text matching.
+    Accepts either ``?query=`` or ``?q=``. Uses database full-text
+    matching (PostgreSQL tsvector / SQLite LIKE fallback).
     """
+    term = (query or q or "").strip()
+    if not term:
+        raise HTTPException(status_code=422, detail="Search term is required (?query= or ?q=)")
+
     stmt = (
         select(BibliographicRecord)
         .where(
-            BibliographicRecord.title.ilike(f"%{q}%") |
-            BibliographicRecord.author.ilike(f"%{q}%") |
-            BibliographicRecord.isbn.ilike(f"%{q}%")
+            BibliographicRecord.title.ilike(f"%{term}%") |
+            BibliographicRecord.author.ilike(f"%{term}%") |
+            BibliographicRecord.isbn.ilike(f"%{term}%")
         )
         .limit(limit)
         .offset(offset)
     )
     result = await db.execute(stmt)
     records = result.scalars().all()
-    return {
-        "query": q,
-        "count": len(records),
-        "results": [BibRecordOut.model_validate(r) for r in records],
-    }
+    return [BibRecordOut.model_validate(r) for r in records]
 
 
 @router.post("", response_model=BibRecordOut, status_code=201, summary="Add a bibliographic record (AC02)")

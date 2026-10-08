@@ -6,7 +6,7 @@ from datetime import date, timedelta
 from app.services.circulation import CirculationService
 from app.models.circulation import Loan
 from app.models.member import Member, MemberStatus
-from app.models.catalogue import Item
+from app.models.catalogue import BibliographicRecord, Item
 
 
 @pytest.mark.unit
@@ -71,6 +71,7 @@ class TestCirculationService:
             author="Test Author",
         ))
         item = await item_repo.create(ItemCreate(
+            accession_number="ACC-TEST-001",
             barcode="ITEM001",
             bibliographic_record_id=record.id,
         ))

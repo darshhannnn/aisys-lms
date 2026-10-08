@@ -79,6 +79,7 @@ class ItemBase(BaseModel):
     accession_number: str = Field(..., min_length=1, max_length=64)
     barcode: Optional[str] = Field(None, max_length=64)
     spine_label: Optional[str] = Field(None, max_length=64)
+    location: Optional[str] = Field(None, max_length=128)  # Physical shelf location
     status: str = Field(default="available", max_length=50)
     is_reference: bool = False
     price: Optional[float] = Field(None, ge=0)
@@ -97,6 +98,7 @@ class ItemUpdate(BaseModel):
 
     barcode: Optional[str] = Field(None, max_length=64)
     spine_label: Optional[str] = Field(None, max_length=64)
+    location: Optional[str] = Field(None, max_length=128)
     status: Optional[str] = Field(None, max_length=50)
     is_reference: Optional[bool] = None
     price: Optional[float] = Field(None, ge=0)

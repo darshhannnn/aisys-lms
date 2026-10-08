@@ -53,22 +53,16 @@ class AuthService:
     ) -> User:
         """Create a new user with hashed password."""
         hashed_pw = hash_password(password)
-        from app.schemas.user import UserCreate
 
-        user_data = UserCreate(
+        user = User(
             username=username,
-            password=hashed_pw,  # Already hashed
             email=email,
             full_name=full_name,
             role=role,
             smart_card_id=smart_card_id,
             branch_id=branch_id,
+            hashed_password=hashed_pw,
         )
-        # Override password with already-hashed version
-        user_dict = user_data.model_dump()
-        user_dict["password"] = hashed_pw
-
-        user = User(**user_dict)
         self.session.add(user)
         await self.session.flush()
         await self.session.refresh(user)

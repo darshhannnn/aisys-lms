@@ -3,7 +3,19 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from app.api.v1 import auth, catalogue, circulation, health, members, rfid, reports, inventory, gate_events, notifications
+from app.api.v1 import (
+    auth,
+    catalogue,
+    circulation,
+    health,
+    members,
+    migration,
+    rfid,
+    reports,
+    inventory,
+    gate_events,
+    notifications,
+)
 
 api_router = APIRouter()
 
@@ -17,3 +29,4 @@ api_router.include_router(inventory.router,    prefix="/inventory",     tags=["I
 api_router.include_router(gate_events.router,  prefix="/gate-events",   tags=["Gate Events"])
 api_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
 api_router.include_router(reports.router,      prefix="/reports",       tags=["Reports"])
+api_router.include_router(migration.router,    prefix="/migration",     tags=["Migration"])

@@ -87,7 +87,7 @@ class GateEventRepository:
         result = await self.session.execute(
             select(GateEvent)
             .where(GateEvent.gate_id == gate_id)
-            .order_by(GateEvent.timestamp.desc())
+            .order_by(GateEvent.created_at.desc())
             .offset(skip)
             .limit(limit)
         )
@@ -101,8 +101,8 @@ class GateEventRepository:
         """Get gate events that are alerts."""
         result = await self.session.execute(
             select(GateEvent)
-            .where(GateEvent.is_alert == True)
-            .order_by(GateEvent.timestamp.desc())
+            .where(GateEvent.is_alert == True)  # noqa: E712
+            .order_by(GateEvent.created_at.desc())
             .offset(skip)
             .limit(limit)
         )
@@ -118,9 +118,9 @@ class GateEventRepository:
         """Get gate events within a date range."""
         result = await self.session.execute(
             select(GateEvent)
-            .where(GateEvent.timestamp >= start_time)
-            .where(GateEvent.timestamp <= end_time)
-            .order_by(GateEvent.timestamp.desc())
+            .where(GateEvent.created_at >= start_time)
+            .where(GateEvent.created_at <= end_time)
+            .order_by(GateEvent.created_at.desc())
             .offset(skip)
             .limit(limit)
         )

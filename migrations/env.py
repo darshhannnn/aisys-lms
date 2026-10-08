@@ -12,6 +12,7 @@ from alembic import context
 
 from app.db.base import Base
 from app.core.config import settings
+import app.models  # noqa: F401  - registers all ORM mappers on Base.metadata
 
 # this is the Alembic Config object
 config = context.config

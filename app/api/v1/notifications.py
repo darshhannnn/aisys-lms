@@ -30,7 +30,7 @@ router = APIRouter()
 async def create_notification(
     request: NotificationCreate,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
 ):
     """Create a new notification."""
     service = NotificationsService(db)
@@ -60,7 +60,7 @@ async def create_notification(
 async def create_from_template(
     request: NotificationTemplateRequest,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
 ):
     """Create a notification from a predefined template."""
     service = NotificationsService(db)
@@ -84,7 +84,7 @@ async def create_from_template(
 async def send_bulk_notifications(
     request: BulkNotificationRequest,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
 ):
     """Send notifications to multiple members."""
     service = NotificationsService(db)
@@ -102,7 +102,7 @@ async def send_bulk_notifications(
                 subject=request.subject,
                 body=request.body_template,
                 scheduled_at=request.scheduled_at,
-                metadata=request.context,
+                notification_metadata=request.context,
             )
             created_count += 1
             notification_ids.append(notification.id)
@@ -128,9 +128,9 @@ async def send_bulk_notifications(
 @router.get("/member/{member_id}", summary="Get member notifications")
 async def get_member_notifications(
     member_id: str,
-    limit: int = 50,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
+    limit: int = 50,
 ):
     """Get notifications for a specific member."""
     from uuid import UUID
@@ -143,7 +143,7 @@ async def get_member_notifications(
 @router.post("/send-overdue-reminders", summary="Send overdue reminders")
 async def send_overdue_reminders(
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
 ):
     """Send reminder notifications for items due soon."""
     service = NotificationsService(db)
@@ -157,7 +157,7 @@ async def send_overdue_reminders(
 @router.post("/send-overdue-notices", summary="Send overdue notices")
 async def send_overdue_notices(
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_librarian)],
+    current_user: Annotated[object, require_librarian],
 ):
     """Send overdue notices for items past due date."""
     service = NotificationsService(db)

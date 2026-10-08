@@ -26,8 +26,14 @@ class CatalogueService:
         author: str,
         **kwargs,
     ) -> BibliographicRecord:
-        """Create a new bibliographic record."""
+        """Create a new bibliographic record, rejecting duplicate ISBNs (AC02)."""
         from app.schemas.catalogue import BibliographicRecordCreate
+
+        isbn = kwargs.get("isbn")
+        if isbn:
+            existing = await self.record_repo.get_by_isbn(isbn)
+            if existing:
+                raise ValueError(f"A record with ISBN {isbn} already exists")
 
         record_data = BibliographicRecordCreate(
             title=title,
@@ -58,8 +64,11 @@ class CatalogueService:
         bibliographic_record_id: uuid.UUID,
         **kwargs,
     ) -> Item:
-        """Create a new item."""
+        """Create a new item, auto-assigning an accession number if not given."""
         from app.schemas.catalogue import ItemCreate
+
+        if not kwargs.get("accession_number"):
+            kwargs["accession_number"] = f"ACC-{uuid.uuid4().hex[:12].upper()}"
 
         item_data = ItemCreate(
             barcode=barcode,

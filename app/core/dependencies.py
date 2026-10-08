@@ -5,6 +5,7 @@ and other common request-scoped resources.
 """
 from __future__ import annotations
 
+import uuid
 from typing import Annotated
 
 from fastapi import Depends, HTTPException, status
@@ -41,13 +42,14 @@ async def get_current_user(
             settings.secret_key,
             algorithms=[settings.jwt_algorithm],
         )
-        user_id: str = payload.get("sub")
-        if user_id is None:
+        raw_subject: str = payload.get("sub")
+        if raw_subject is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authentication credentials",
             )
-    except JWTError:
+        user_id = uuid.UUID(raw_subject)
+    except (JWTError, ValueError):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
@@ -87,7 +89,7 @@ async def get_current_active_user(
 
 
 # ── Role-Based Access Control (RBAC) Dependencies ─────────────────────────────
-async def require_role(*allowed_roles: UserRole) -> User:
+def require_role(*allowed_roles: UserRole):
     """Dependency factory for role-based access control.
 
     Usage:

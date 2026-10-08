@@ -45,6 +45,7 @@ class LoanStatus(str, enum.Enum):
 
 class FineStatus(str, enum.Enum):
     UNPAID = "unpaid"
+    PARTIAL = "partial"
     PAID = "paid"
     WAIVED = "waived"
 
@@ -129,8 +130,9 @@ class Renewal(Base):
     renewed_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
-    old_due_date: Mapped[date] = mapped_column(Date, nullable=False)
+    previous_due_date: Mapped[date] = mapped_column(Date, nullable=False)
     new_due_date: Mapped[date] = mapped_column(Date, nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     loan: Mapped[Loan] = relationship("Loan", back_populates="renewals")
 
@@ -161,8 +163,11 @@ class Fine(Base):
     status: Mapped[FineStatus] = mapped_column(
         Enum(FineStatus, name="fine_status"), nullable=False, default=FineStatus.UNPAID
     )
+    paid_amount: Mapped[float] = mapped_column(Numeric(10, 2), default=0.0, nullable=False)
+    paid_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     paid_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     waive_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Relationships
     member: Mapped[Member] = relationship("Member", back_populates="fines")

@@ -159,7 +159,12 @@ class SpreadsheetImportService:
     ) -> Dict[str, Any]:
         """Reconcile imported data with existing records (FR10, AC01)."""
         # Get all records from source system
-        members = await self.member_repo.search(source_system, skip=0, limit=10000)
+        from sqlalchemy import select
+
+        result = await self.session.execute(
+            select(Member).where(Member.source_system == source_system)
+        )
+        members = result.scalars().all()
         
         reconciliation_report = {
             "source_system": source_system,

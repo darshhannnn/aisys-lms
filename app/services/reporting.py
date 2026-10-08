@@ -58,7 +58,7 @@ class ReportingService:
         result = await self.session.execute(
             select(func.count())
             .select_from(Loan)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         active_loans = result.scalar() or 0
 
@@ -68,7 +68,7 @@ class ReportingService:
             select(func.count())
             .select_from(Loan)
             .where(Loan.due_date < today)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         overdue_loans = result.scalar() or 0
 

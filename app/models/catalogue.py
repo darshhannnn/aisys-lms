@@ -115,7 +115,7 @@ class Item(Base):
 
     __tablename__ = "items"
 
-    bib_record_id: Mapped[uuid.UUID] = mapped_column(
+    bibliographic_record_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("bibliographic_records.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     accession_number: Mapped[str] = mapped_column(String(64), unique=True, nullable=False, index=True)

@@ -8,6 +8,7 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.notification import Notification, NotificationStatus, NotificationType, NotificationChannel
@@ -23,7 +24,7 @@ class NotificationsService:
 
     async def create_notification(
         self,
-        member_id: uuid.UUID,
+        member_id: uuid.UUID | None,
         channel: NotificationChannel,
         notification_type: NotificationType,
         subject: str,
@@ -53,7 +54,7 @@ class NotificationsService:
         result = await self.session.execute(
             select(Loan)
             .where(Loan.due_date == due_date)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         loans = result.scalars().all()
 
@@ -81,7 +82,7 @@ class NotificationsService:
         result = await self.session.execute(
             select(Loan)
             .where(Loan.due_date < today)
-            .where(Loan.return_date.is_(None))
+            .where(Loan.returned_at.is_(None))
         )
         loans = result.scalars().all()
 

@@ -25,12 +25,14 @@ dependencies = [
 
     # Auth & security
     "passlib[bcrypt]==1.7.4",
+    "bcrypt==4.0.1",          # passlib 1.7.4 is incompatible with bcrypt >= 4.1
     "python-jose[cryptography]==3.3.0",
     "itsdangerous==2.2.0",
 
     # Config & environment
     "pydantic==2.9.2",
     "pydantic-settings==2.5.2",
+    "email-validator==2.2.0",  # pydantic EmailStr support
     "python-dotenv==1.0.1",
 
     # Search (full-text via PostgreSQL tsvector — no extra service needed)
@@ -86,6 +88,12 @@ ignore_missing_imports = true
 asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = "-v --tb=short"
+python_files = ["test_*.py", "*_test.py", "ac*.py"]
+markers = [
+    "acceptance: end-to-end acceptance scenarios (AC01-AC10)",
+    "unit: fast isolated unit tests",
+    "integration: tests exercising multiple layers together",
+]
 
 [tool.coverage.run]
 source = ["app"]

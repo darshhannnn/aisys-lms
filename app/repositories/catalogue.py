@@ -103,13 +103,10 @@ class ItemRepository(BaseRepository[Item, ItemCreate, ItemUpdate]):
         skip: int = 0,
         limit: int = 100,
     ) -> Sequence[Item]:
-        """Get items by shelf location."""
-        # Join with bibliographic record to get shelf_location
-        from sqlalchemy import and_
+        """Get items shelved at the given physical location."""
         result = await self.session.execute(
             select(Item)
-            .join(BibliographicRecord, Item.bibliographic_record_id == BibliographicRecord.id)
-            .where(BibliographicRecord.shelf_location == location)
+            .where(Item.location == location)
             .offset(skip)
             .limit(limit)
         )

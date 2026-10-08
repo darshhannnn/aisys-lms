@@ -33,7 +33,7 @@ class GateEventCreateRequest(BaseModel):
 async def create_gate_event(
     request: GateEventCreateRequest,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_circulation_staff)],
+    current_user: Annotated[object, require_circulation_staff],
 ):
     """Record a gate event and detect unauthorized removals (FR07, AC06)."""
     from uuid import UUID
@@ -58,9 +58,9 @@ async def create_gate_event(
 
 @router.get("/alerts", summary="Get recent gate alerts")
 async def get_gate_alerts(
-    limit: int = 50,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_circulation_staff)],
+    current_user: Annotated[object, require_circulation_staff],
+    limit: int = 50,
 ):
     """Get recent gate security alerts."""
     service = GateEventsService(db)
@@ -71,9 +71,9 @@ async def get_gate_alerts(
 @router.get("/gate/{gate_id}", summary="Get events for a specific gate")
 async def get_gate_events(
     gate_id: str,
-    limit: int = 100,
     db: DatabaseSession,
-    current_user: Annotated[object, Depends(require_circulation_staff)],
+    current_user: Annotated[object, require_circulation_staff],
+    limit: int = 100,
 ):
     """Get events for a specific security gate."""
     service = GateEventsService(db)
